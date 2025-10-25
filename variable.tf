@@ -1,26 +1,28 @@
-variable "environments_second" {
+variable "service_name" {
+  default = "mcit"
+}
+
+variable "environments" {
   default = ["dev", "qa", "stage", "prod"]
 }
- 
-variable "service_names_town" {
-  default = ["montreal", "toronto", "calgary", "ottawa"]
-}
- 
+
 locals {
-  # Validate lengths match (optional but good practice)
-  env_service_map = zipmap(var.environments_second, var.service_names_town)
+  full_service_names = {
+    for env in var.environments :
+    env => "${env}${var.service_name}"
+  }
 }
- 
-resource "azurerm_storage_account" "mcitstoremay2025second" {
-  for_each = local.env_service_map
- 
+
+resource "azurerm_storage_account" "mcitstoremay2025" {
+  for_each = local.full_service_names
+
+
   name                     = each.value
   resource_group_name      = "mcitresources"
   location                 = "East US"
-  account_tier             = "Standard"
+  account_tier              = "Standard"
   account_replication_type = "LRS"
 }
- 
-output "mcit16may2025second" {
-  value = local.env_service_map
+output "mcit16may2025"{
+  value=local.full_service_names
 }
